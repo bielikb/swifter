@@ -84,7 +84,7 @@ public enum HttpResponse {
     case movedPermanently(String)
     case movedTemporarily(String)
     case badRequest(HttpResponseBody?), unauthorized(HttpResponseBody?), forbidden(HttpResponseBody?), notFound(HttpResponseBody? = nil), notAcceptable(HttpResponseBody?), tooManyRequests(HttpResponseBody?), internalServerError(HttpResponseBody?)
-    case raw(Int, String, [String: String]?, ((HttpResponseBodyWriter) throws -> Void)? )
+    case raw(Int, String, [String: String]?, HttpResponseBody?, ((HttpResponseBodyWriter) throws -> Void)? )
 
     public var statusCode: Int {
         switch self {
@@ -101,7 +101,7 @@ public enum HttpResponse {
         case .notAcceptable           : return 406
         case .tooManyRequests         : return 429
         case .internalServerError     : return 500
-        case .raw(let code, _, _, _)  : return code
+        case .raw(let code, _, _, _, _)  : return code
         }
     }
 
@@ -120,7 +120,7 @@ public enum HttpResponse {
         case .notAcceptable            : return "Not Acceptable"
         case .tooManyRequests          : return "Too Many Requests"
         case .internalServerError      : return "Internal Server Error"
-        case .raw(_, let phrase, _, _) : return phrase
+        case .raw(_, let phrase, _, _, _) : return phrase
         }
     }
 
@@ -146,7 +146,7 @@ public enum HttpResponse {
             headers["Location"] = location
         case .movedTemporarily(let location):
             headers["Location"] = location
-        case .raw(_, _, let rawHeaders, _):
+        case .raw(_, _, let rawHeaders, _, _):
             if let rawHeaders = rawHeaders {
                 for (key, value) in rawHeaders {
                     headers.updateValue(value, forKey: key)
@@ -161,7 +161,7 @@ public enum HttpResponse {
         switch self {
         case .ok(let body, _)          : return body.content()
         case .badRequest(let body), .unauthorized(let body), .forbidden(let body), .notFound(let body), .tooManyRequests(let body), .internalServerError(let body) : return body?.content() ?? (-1, nil)
-        case .raw(_, _, _, let writer) : return (-1, writer)
+        case .raw(_, _, _, let body, let writer) : return (body?.content().0 ?? -1, writer)
         default                        : return (-1, nil)
         }
     }

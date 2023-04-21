@@ -17,7 +17,7 @@ public func shareFile(_ path: String) -> ((HttpRequest) -> HttpResponse) {
                 let fileSize = attr[FileAttributeKey.size] as? UInt64 {
                 responseHeader["Content-Length"] = String(fileSize)
             }
-            return .raw(200, "OK", responseHeader, { writer in
+            return .raw(200, "OK", responseHeader, .json(""), { writer in
                 try? writer.write(file)
                 file.close()
             })
@@ -34,7 +34,7 @@ public func shareFilesFromDirectory(_ directoryPath: String, defaults: [String] 
         if fileRelativePath.value.isEmpty {
             for path in defaults {
                 if let file = try? (directoryPath + String.pathSeparator + path).openForReading() {
-                    return .raw(200, "OK", [:], { writer in
+                    return .raw(200, "OK", [:], .json(""), { writer in
                         try? writer.write(file)
                         file.close()
                     })
@@ -52,7 +52,7 @@ public func shareFilesFromDirectory(_ directoryPath: String, defaults: [String] 
                 responseHeader["Content-Length"] = String(fileSize)
             }
 
-            return .raw(200, "OK", responseHeader, { writer in
+            return .raw(200, "OK", responseHeader, .json(""),{ writer in
                 try? writer.write(file)
                 file.close()
             })
@@ -94,7 +94,7 @@ public func directoryBrowser(_ dir: String) -> ((HttpRequest) -> HttpResponse) {
                 guard let file = try? filePath.openForReading() else {
                     return .notFound()
                 }
-                return .raw(200, "OK", [:], { writer in
+                return .raw(200, "OK", [:], .json(""), { writer in
                     try? writer.write(file)
                     file.close()
                 })

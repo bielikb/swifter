@@ -151,7 +151,7 @@ public func demoServer(_ publicDir: String) -> HttpServer {
     }
 
     server["/raw"] = { _ in
-        return HttpResponse.raw(200, "OK", ["XXX-Custom-Header": "value"], { try $0.write([UInt8]("test".utf8)) })
+        return HttpResponse.raw(200, "OK", ["XXX-Custom-Header": "value"],.json(""), { try $0.write([UInt8]("test".utf8)) })
     }
 
     server["/redirect/permanently"] = { _ in
@@ -173,7 +173,7 @@ public func demoServer(_ publicDir: String) -> HttpServer {
     }
 
     server["/stream"] = { _ in
-        return HttpResponse.raw(200, "OK", nil, { writer in
+        return HttpResponse.raw(200, "OK", nil, .json(""), { writer in
             for index in 0...100 {
                 try writer.write([UInt8]("[chunk \(index)]".utf8))
             }
